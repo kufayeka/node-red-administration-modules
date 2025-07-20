@@ -1,0 +1,23 @@
+<script type="text/html" data-template-name="Admin-AccountManager">
+    <div class="form-row">
+        <label for="node-config-input-pgConfig"><i class="fa fa-database"></i> Database Config</label>
+        <input type="text" id="node-config-input-pgConfig" style="width:70%;">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('Admin-AccountManager', {
+        category: 'Administration',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            pgConfig: { value: "", type: "admin-pg-config", required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "database.png",
+        label: function() {
+            return this.name || "Admin-AccountManager";
+        }
+    });
+</script>

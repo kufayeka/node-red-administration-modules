@@ -1,0 +1,23 @@
+{
+  "name": "kufayeka-administration-modules",
+  "version": "0.1.0",
+  "author": "kufayeka",
+  "license": "ISC",
+  "description": "Administration Modules for Node-RED ",
+  "keywords": [
+    "node-red",
+    "node-red-node"
+  ],
+  "node-red": {
+    "nodes": {
+      "Admin-PgConfig": "admin-pg-config.js",
+      "Admin-Account": "admin-accountManager.js"
+    }
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "bcryptjs": "^3.0.2",
+    "pg": "^8.16.0",
+    "uuid": "^11.1.0"
+  }
+}
