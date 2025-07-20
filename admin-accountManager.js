@@ -33,7 +33,7 @@ module.exports = function(RED) {
                 if (op === 'logout') {
                     msg.payload = { success: true };
                     msg.cookies = {
-                        loggedAccoundId: {
+                        logged_account_id: {
                             value: '',
                             options: { expires: new Date(0), path: '/' }
                         }
@@ -86,7 +86,7 @@ module.exports = function(RED) {
                     }
 
                     msg.cookies = {
-                        loggedAccoundId: {
+                        logged_account_id: {
                             value: result.id, // Store only the user ID
                             options: cookieOptions
                         }
