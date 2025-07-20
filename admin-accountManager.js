@@ -35,7 +35,8 @@ module.exports = function(RED) {
                     msg.cookies = {
                         loggedAccountId: {
                             value: '',
-                            options: { expires: new Date(0), path: '/' }
+                            expires: new Date(0),
+                            path: '/'
                         }
                     };
                     node.status({ fill: 'green', shape: 'dot', text: 'logout' });
@@ -88,7 +89,7 @@ module.exports = function(RED) {
                     msg.cookies = {
                         loggedAccountId: {
                             value: result.id, // Store only the user ID
-                            options: cookieOptions
+                            ...cookieOptions
                         }
                     };
                 }
