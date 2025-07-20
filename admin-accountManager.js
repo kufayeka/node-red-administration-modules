@@ -1,10 +1,10 @@
-const { initTables } = require('./accountManager/db');
-const { validate } = require('./accountManager/validator');
-const { formatError } = require('./accountManager/errors');
-const ops = require('./accountManager/operations');
-
 module.exports = function(RED) {
-    function ITAccountManagerNode(config) {
+    const { initTables } = require('./accountManager/db');
+    const { validate } = require('./accountManager/validator');
+    const { formatError } = require('./accountManager/errors');
+    const ops = require('./accountManager/operations');
+
+    function AdminAccountManangerNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
 
@@ -33,7 +33,7 @@ module.exports = function(RED) {
                 if (op === 'logout') {
                     msg.payload = { success: true };
                     msg.cookies = {
-                        accountId: {
+                        loggedAccoundId: {
                             value: '',
                             options: { expires: new Date(0), path: '/' }
                         }
@@ -72,12 +72,23 @@ module.exports = function(RED) {
                 msg.payload = { success: true, data: result };
                 msg.topic = fnName;
 
-                // Set cookie for login operation
-                if (op === 'login') {
+                // Set cookie for login operation if enabled
+                if (op === 'login' && config.loginCookie === "true") {
+                    const cookieOptions = {
+                        httpOnly: config.loginCookieHttpOnly === "true",
+                        path: '/',
+                    };
+
+                    // Only set maxAge if provided and valid
+                    const maxAge = parseInt(config.loginCookieMaxAge, 10);
+                    if (!isNaN(maxAge) && maxAge > 0) {
+                        cookieOptions.maxAge = maxAge * 1000; // Convert seconds to milliseconds
+                    }
+
                     msg.cookies = {
-                        accountId: {
-                            value: result,
-                            options: { httpOnly: true, path: '/' }
+                        loggedAccoundId: {
+                            value: result.id, // Store only the user ID
+                            options: cookieOptions
                         }
                     };
                 }
@@ -102,15 +113,9 @@ module.exports = function(RED) {
         });
 
         node.on('close', (removed, done) => {
-            pgConfig.closeClient().then(() => {
-                node.status({ fill: 'grey', shape: 'ring', text: 'disconnected' });
-                done();
-            }).catch(err => {
-                node.error(`Error closing client: ${err.message}`);
-                done();
-            });
+            done();
         });
     }
 
-    RED.nodes.registerType('Admin-Account', ITAccountManagerNode);
+    RED.nodes.registerType('Admin-AccountManager', AdminAccountManangerNode);
 };

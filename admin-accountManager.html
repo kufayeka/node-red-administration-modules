@@ -1,23 +1,45 @@
 <script type="text/html" data-template-name="Admin-AccountManager">
     <div class="form-row">
-        <label for="node-config-input-pgConfig"><i class="fa fa-database"></i> Database Config</label>
-        <input type="text" id="node-config-input-pgConfig" style="width:70%;">
+        <label for="node-input-pgConfig"><i class="fa fa-database"></i> Postgres Config</label>
+        <input id="node-input-pgConfig">
+    </div>
+    <hr>
+    <div class="form-row">
+        <label for="node-input-loginCookie"><i class="fa fa-cog"></i> Login Cookie</label>
+        <select id="node-input-loginCookie">
+            <option value="true">Enable</option>
+            <option value="false">Disable</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-loginCookieHttpOnly"><i class="fa fa-cog"></i> Login Cookie (httpOnly)</label>
+        <select id="node-input-loginCookieHttpOnly">
+            <option value="true">True</option>
+            <option value="false">False</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-loginCookieMaxAge"><i class="fa fa-cog"></i> Login Cookie (maxAge in second)</label>
+        <input type="number" id="node-input-loginCookieMaxAge" placeholder="604800">
     </div>
 </script>
 
 <script type="text/javascript">
     RED.nodes.registerType('Admin-AccountManager', {
         category: 'Administration',
-        color: '#a6bbcf',
+        color: '#e38015',
         defaults: {
             name: { value: "" },
-            pgConfig: { value: "", type: "admin-pg-config", required: true }
+            pgConfig: { value: "", type: "admin-pg-config", required: true },
+            loginCookie: { value: "true" },
+            loginCookieHttpOnly: { value: "true" }, // Changed default to true for security
+            loginCookieMaxAge: { value: "604800" } // Default to 7 days (604800 seconds)
         },
         inputs: 1,
         outputs: 1,
         icon: "database.png",
         label: function() {
-            return this.name || "Admin-AccountManager";
+            return this.name || "Account Manager";
         }
     });
 </script>

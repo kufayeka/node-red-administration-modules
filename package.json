@@ -11,7 +11,7 @@
   "node-red": {
     "nodes": {
       "Admin-PgConfig": "admin-pg-config.js",
-      "Admin-Account": "admin-accountManager.js"
+      "Admin-AccountManager": "admin-accountManager.js"
     }
   },
   "dependencies": {

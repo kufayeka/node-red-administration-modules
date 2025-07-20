@@ -23,7 +23,7 @@ async function createAccount(client, { fullname, role, username, password, statu
     return { id };
 }
 
-async function updateAccount(client, { id, fullname, role, username, password, status }) {
+async function updateAccount(client, { id, fullname, role, username, password, status }) {
     const now = new Date().toISOString();
     if (username) {
         const chk = await client.query(
