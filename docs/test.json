@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "data": {
+    "dataPertama": {
+      "id": "55a3b898-1305-4973-9234-81e2677ebde5",
+      "category": "shift",
+      "value": {
+        "title": "Shift - 1",
+        "value": "shift_1"
+      },
+      "description": null,
+      "created_at": "2025-07-22T06:59:29.969Z",
+      "updated_at": "2025-07-22T06:59:29.969Z"
+    },
+    "dataKedua": {
+      "id": "91141361-e0e7-4ac1-bbe1-84187766a996",
+      "category": "shift",
+      "value": {
+        "title": "Shift - 2",
+        "value": "shift_2"
+      },
+      "description": null,
+      "created_at": "2025-07-22T06:59:29.969Z",
+      "updated_at": "2025-07-22T06:59:29.969Z"
+    }
+  }
+}
+
+
+

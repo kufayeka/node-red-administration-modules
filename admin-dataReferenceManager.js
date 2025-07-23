@@ -36,7 +36,8 @@ module.exports = function(RED) {
                     update: 'updateDataReference',
                     delete: 'deleteDataReference',
                     get: 'getDataReference',
-                    getall: 'getAllDataReferences'
+                    getall: 'getAllDataReferences',
+                    getbylist: 'getDataReferencesByList'
                 };
                 const fnName = map[op];
                 if (!fnName) {
@@ -78,4 +79,4 @@ module.exports = function(RED) {
     }
 
     RED.nodes.registerType('Admin-DataReferenceManager', DataReferenceManagerNode);
-};
+}

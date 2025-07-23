@@ -61,6 +61,14 @@ const schemas = {
             category: { type: 'string', minLength: 1 }
         },
         additionalProperties: false
+    },
+    getbylist: {
+        type: 'object',
+        minProperties: 1,
+        patternProperties: {
+            '.*': { type: 'string', pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$' }
+        },
+        additionalProperties: false
     }
 };
 

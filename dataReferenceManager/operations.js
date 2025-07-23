@@ -63,10 +63,35 @@ async function getAllDataReferences(client, { category } = {}) {
     return rows;
 }
 
+async function getDataReferencesByList(client, payload) {
+    const ids = Object.values(payload).filter(id => typeof id === 'string' && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id));
+    if (ids.length === 0) {
+        throw new Error('No valid UUIDs provided');
+    }
+
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
+    const { rows } = await client.query(
+        `SELECT id, category, value, description, created_at, updated_at FROM data_reference WHERE id IN (${placeholders})`,
+        ids
+    );
+
+    const result = {};
+    for (const [key, id] of Object.entries(payload)) {
+        const record = rows.find(row => row.id === id);
+        if (record) {
+            result[key] = record;
+        } else {
+            throw new Error(`DataReference not found for ID: ${id}`);
+        }
+    }
+    return result;
+}
+
 module.exports = {
     createDataReference,
     updateDataReference,
     deleteDataReference,
     getDataReference,
-    getAllDataReferences
+    getAllDataReferences,
+    getDataReferencesByList
 };
