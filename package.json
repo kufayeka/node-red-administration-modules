@@ -12,7 +12,7 @@
     "nodes": {
       "Admin-PgConfig": "admin-pg-config.js",
       "Admin-AccountManager": "admin-accountManager.js",
-      "Admin-EnumManager": "admin-enumManager.js"
+      "Admin-DataReferenceManager": "admin-dataReferenceManager.js"
     }
   },
   "dependencies": {

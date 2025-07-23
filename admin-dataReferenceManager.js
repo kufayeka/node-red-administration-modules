@@ -1,10 +1,10 @@
-const { initEnumsTable } = require('./enumManager/db');
-const { validate } = require('./enumManager/validator');
-const { formatError } = require('./enumManager/errors');
-const ops = require('./enumManager/operations');
+const { initDataReferencesTable } = require('./dataReferenceManager/db');
+const { validate } = require('./dataReferenceManager/validator');
+const { formatError } = require('./dataReferenceManager/errors');
+const ops = require('./dataReferenceManager/operations');
 
 module.exports = function(RED) {
-    function EnumManagerNode(config) {
+    function DataReferenceManagerNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
 
@@ -19,7 +19,7 @@ module.exports = function(RED) {
         const client = pgConfig.getClient();
 
         // Initialize tables
-        initEnumsTable(client).catch(err => {
+        initDataReferencesTable(client).catch(err => {
             node.status({ fill: 'red', shape: 'ring', text: 'Init table failed' });
             node.error(`Table initialization failed: ${err.message}`);
         });
@@ -32,11 +32,11 @@ module.exports = function(RED) {
                 validate(op, msg.payload);
 
                 const map = {
-                    create: 'createEnum',
-                    update: 'updateEnum',
-                    delete: 'deleteEnum',
-                    get: 'getEnum',
-                    getall: 'getAllEnums'
+                    create: 'createDataReference',
+                    update: 'updateDataReference',
+                    delete: 'deleteDataReference',
+                    get: 'getDataReference',
+                    getall: 'getAllDataReferences'
                 };
                 const fnName = map[op];
                 if (!fnName) {
@@ -71,11 +71,11 @@ module.exports = function(RED) {
             pgConfig.closeClient().then(() => {
                 done();
             }).catch(err => {
-                console.error(`[Enum-Manager] Error closing pool: ${err.message}`);
+                console.error(`[DataReference-Manager] Error closing pool: ${err.message}`);
                 done();
             });
         });
     }
 
-    RED.nodes.registerType('Admin-EnumManager', EnumManagerNode);
+    RED.nodes.registerType('Admin-DataReferenceManager', DataReferenceManagerNode);
 };

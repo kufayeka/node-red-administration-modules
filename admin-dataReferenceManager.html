@@ -1,16 +1,16 @@
-<script type="text/html" data-template-name="Admin-EnumManager">
+<script type="text/html" data-template-name="Admin-DataReferenceManager">
     <div class="form-row">
         <label for="node-input-pgConfig"><i class="fa fa-database"></i> Postgres Config</label>
         <input id="node-input-pgConfig">
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Enum Manager">
+        <input type="text" id="node-input-name" placeholder="Data Reference Manager">
     </div>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('Admin-EnumManager', {
+    RED.nodes.registerType('Admin-DataReferenceManager', {
         category: 'Administration',
         color: '#e38015',
         defaults: {
@@ -21,7 +21,7 @@
         outputs: 1,
         icon: "file.png",
         label: function() {
-            return this.name || "Enum Manager";
+            return this.name || "Data Reference Manager";
         }
     });
 </script>
