@@ -27,8 +27,10 @@ module.exports = function(RED) {
         app.use(cors(corsOptions));
 
         const port = config.port || 7000;
-        node.log(`Starting Express server on port ${port}`);
-        node.server = app.listen(port);
+        app.listen(port, '0.0.0.0', () => {
+            node.log(`Starting Express server on port ${port}`);
+        });
+
 
         node.app = app;
 
