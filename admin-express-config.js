@@ -1,4 +1,4 @@
-module.exports = function (RED) {
+module.exports = function(RED) {
     const express = require('express');
     const cookieParser = require('cookie-parser');
     const cors = require('cors');
@@ -7,18 +7,17 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         const node = this;
 
+        // Setup Express
         const app = express();
         app.use(express.json());
         app.use(cookieParser());
 
-        // Safe whitelist handling
-        const rawWhitelist = (config.whitelist || "").split(',').map(o => o.trim()).filter(Boolean);
+        const whitelist = config.whitelist.split(',').map(o => o.trim());
         const corsOptions = {
             origin: function (origin, callback) {
-                if (!origin || rawWhitelist.includes(origin)) {
+                if (!origin || whitelist.indexOf(origin) !== -1) {
                     callback(null, true);
                 } else {
-                    node.warn(`Blocked CORS origin: ${origin}`);
                     callback(new Error('Not allowed by CORS'));
                 }
             },
@@ -27,32 +26,14 @@ module.exports = function (RED) {
 
         app.use(cors(corsOptions));
 
-        const port = parseInt(config.port) || 7000;
+        const port = config.port || 7000;
+        node.log(`Starting Express server on port ${port}`);
+        node.server = app.listen(port);
 
-        try {
-            // Avoid duplicate servers on redeploy
-            if (node.server && node.server.listening) {
-                node.warn(`Server already running on port ${port}, closing old instance...`);
-                node.server.close();
-            }
-
-            node.log(`Starting Express server on port ${port}`);
-            node.server = app.listen(port, () => {
-                node.log(`Express server started on port ${port}`);
-            });
-
-            // Attach express app to node for other nodes to use
-            node.app = app;
-
-        } catch (err) {
-            node.error(`Failed to start server on port ${port}: ${err.message}`);
-        }
+        node.app = app;
 
         node.on('close', function () {
-            if (node.server && node.server.close) {
-                node.log(`Shutting down Express server on port ${port}`);
-                node.server.close();
-            }
+            node.server.close();
         });
     }
 
