@@ -1,0 +1,62 @@
+<script type="text/javascript">
+    RED.nodes.registerType('server-sent-event', {
+        category: 'network', // Category in the Node-RED palette
+        color: '#a6bbcf', // Background color for the node
+        defaults: {
+            endpoint: { value: '/sse', validate: RED.validators.regex(/^\/[a-zA-Z0-9_-]+$/), required: true },
+            keepAliveInterval: { value: 15000, validate: RED.validators.number(), required: true },
+            updateInterval: { value: 5000, validate: RED.validators.number(), required: true }
+        },
+        inputs: 1, // One input for loopback from Node B
+        outputs: 1, // One output to Node B
+        icon: 'bridge.png', // Icon for the node (use an existing Node-RED icon or a custom one)
+        label: function () {
+            return this.endpoint || 'server-sent-event';
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="server-sent-event">
+    <div class="form-row">
+        <label for="node-input-endpoint"><i class="fa fa-globe"></i> Endpoint</label>
+        <input type="text" id="node-input-endpoint" placeholder="/sse">
+    </div>
+    <div class="form-row">
+        <label for="node-input-keepAliveInterval"><i class="fa fa-clock-o"></i> Keep-Alive Interval (ms)</label>
+        <input type="number" id="node-input-keepAliveInterval" placeholder="15000">
+    </div>
+    <div class="form-row">
+        <label for="node-input-updateInterval"><i class="fa fa-refresh"></i> Update Interval (ms)</label>
+        <input type="number" id="node-input-updateInterval" placeholder="5000">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="server-sent-event">
+    <p>A node that sets up a Server-Sent Events (SSE) endpoint and communicates with a loopback flow.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">string</span></dt>
+        <dd>Expects 'sse_response' with <code>msg.sseData</code> containing the data to send via SSE.</dd>
+        <dt>clientId <span class="property-type">string</span></dt>
+        <dd>The client identifier from the cookie.</dd>
+        <dt>sseData <span class="property-type">object</span></dt>
+        <dd>The data to be sent to the SSE client.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">string</span></dt>
+        <dd>Sends 'sse_update' with an empty <code>msg.sseData</code> to trigger processing.</dd>
+        <dt>clientId <span class="property-type">string</span></dt>
+        <dd>The client identifier.</dd>
+        <dt>sseData <span class="property-type">object</span></dt>
+        <dd>An empty object to trigger the processing node.</dd>
+    </dl>
+    <h3>Details</h3>
+    <p>
+        This node creates an SSE endpoint at the specified path (e.g., <code>/sse</code>).
+        It requires a <code>clientId</code> cookie to identify clients.
+        It sends an empty <code>msg.sseData</code> to a processing node (e.g., a Function node) every <code>updateInterval</code> milliseconds.
+        The processing node should return <code>msg.sseData</code> with the data to be sent to the client.
+        Keep-alive messages are sent every <code>keepAliveInterval</code> milliseconds to maintain the connection.
+    </p>
+</script>

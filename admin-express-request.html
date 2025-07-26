@@ -1,0 +1,42 @@
+<script type="text/html" data-template-name="express-request">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-cog"></i> Express Config</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-endpoint"><i class="fa fa-link"></i> Endpoint</label>
+        <input type="text" id="node-input-endpoint" placeholder="/api/route">
+    </div>
+    <div class="form-row">
+        <label for="node-input-method"><i class="fa fa-bolt"></i> Method</label>
+        <select id="node-input-method">
+            <option value="get">GET</option>
+            <option value="post">POST</option>
+            <option value="put">PUT</option>
+            <option value="delete">DELETE</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('express-request', {
+        category: 'input',
+        color: '#c2f0c2',
+        defaults: {
+            name: { value: "" },
+            server: { type: "express-config", required: true },
+            endpoint: { value: "/api/route", required: true },
+            method: { value: "post", required: true }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "font-awesome/fa-sign-in",
+        label: function () {
+            return this.name || `[${this.method}] ` + this.endpoint;
+        }
+    });
+</script>
