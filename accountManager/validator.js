@@ -32,13 +32,12 @@ const schemas = {
                 enum: ['administrator','operator','maintenance','dev']
             },
             username: { type: 'string' },
-            password: { type: 'string', minLength: 6 },
             status: {
                 type: 'string',
                 enum: ['active','inactive']
             }
         },
-        additionalProperties: false
+        additionalProperties: true
     },
     delete: {
         type: 'object',
