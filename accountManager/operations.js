@@ -89,7 +89,7 @@ async function findAllAccounts(client) {
     return rows;
 }
 
-async function loginAccount(client, { username, password }) {
+async function loginAccount(client, { username, password, role }) {
     const { rows } = await client.query(
         'SELECT * FROM accounts WHERE username=$1 AND delete_at IS NULL',
         [username]
@@ -100,6 +100,12 @@ async function loginAccount(client, { username, password }) {
         throw e;
     }
     const user = rows[0];
+    // Check if the provided role matches the user's role
+    if (user.role !== role) {
+        const e = new Error('Account role does not match');
+        e.code = 'INVALID_ROLE';
+        throw e;
+    }
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) {
         const e = new Error('Wrong password');

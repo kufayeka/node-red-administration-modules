@@ -70,12 +70,13 @@ const schemas = {
     },
     login: {
         type: 'object',
-        required: ['username','password'],
+        required: ['username','password', 'role'],
         properties: {
             username: { type: 'string', minLength: 1 },
-            password: { type: 'string', minLength: 6 }
+            password: { type: 'string', minLength: 6 },
+            role: { type: 'string' }
         },
-        additionalProperties: false
+        additionalProperties: true
     },
     recoverdeletedaccount: {
         type: 'object',
