@@ -5,19 +5,14 @@ const ajv = new Ajv({ allErrors: true });
 const schemas = {
     create: {
         type: 'object',
-        required: ['fullname','role','username','password','status'],
+        required: ['fullname','role','username','password'],
         properties: {
             fullname: { type: 'string', minLength: 1 },
             role: {
                 type: 'string',
-                enum: ['administrator','operator','maintenance','dev']
             },
             username: { type: 'string', minLength: 1 },
             password: { type: 'string', minLength: 6 },
-            status: {
-                type: 'string',
-                enum: ['active','inactive']
-            }
         },
         additionalProperties: false
     },
@@ -29,7 +24,6 @@ const schemas = {
             fullname: { type: 'string' },
             role: {
                 type: 'string',
-                enum: ['administrator','operator','maintenance','dev']
             },
             username: { type: 'string' },
             status: {
