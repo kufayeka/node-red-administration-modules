@@ -38,7 +38,7 @@
         defaults: {
             method: { value: 'get' },
             endpoint: { value: '' },
-            schema: { value: '' },
+            schema: { value: '{"type":"object","properties":{"field_1":{"type":"string"},"field_2":{"type":"number"}},"required":["field_1","field_2"],"additionalProperties":false}' },
             validate: { value: false },
             server: { value: '', type: 'express-config' }
         },
