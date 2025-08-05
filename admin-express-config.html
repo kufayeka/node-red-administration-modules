@@ -1,12 +1,12 @@
 <!-- admin-express-config.html -->
 <script type="text/html" data-template-name="express-config">
     <div class="form-row">
-        <label for="node-input-port"><i class="fa fa-server"></i> Port</label>
-        <input type="number" id="node-input-port" placeholder="7000">
+        <label for="node-config-port"><i class="fa fa-server"></i> Port</label>
+        <input type="number" id="node-config-port" placeholder="7000">
     </div>
     <div class="form-row">
-        <label for="node-input-whitelist"><i class="fa fa-globe"></i> CORS Whitelist</label>
-        <input type="text" id="node-input-whitelist" placeholder="http://localhost:3000,http://example.com">
+        <label for="node-config-whitelist"><i class="fa fa-globe"></i> CORS Whitelist</label>
+        <input type="text" id="node-config-whitelist" placeholder="http://localhost:3000,http://example.com">
     </div>
     <div class="form-row">
         <button id="generate-client-code">GENERATE CLIENT CODE</button>
@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('express-config', {
-        category: 'web',
+        category: 'config',
         color: '#a6bbc6',
         defaults: {
             port: { value: 7000 },

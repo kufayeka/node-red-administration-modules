@@ -15,7 +15,7 @@
     </div>
     <div class="form-row">
         <label for="node-input-schema"><i class="fa fa-code"></i> Request Body Schema (JSON)</label>
-        <textarea id="node-input-schema" rows="5" placeholder='{"type": "object", "properties": {"event_id": {"type": "number", "minimum": 1}}, "required": ["event_id"]}'></textarea>
+        <input id="node-input-schema" type="text" placeholder='{"type": "object", "properties": {"event_id": {"type": "number", "minimum": 1}}, "required": ["event_id"]}'>
         <div id="schema-error" class="red-ui-typedInput-error" style="display: none; color: #d43535;">Invalid JSON schema</div>
     </div>
     <div class="form-row">
@@ -30,8 +30,8 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('express-request', {
-        category: 'web',
-        color: '#a6bbc6',
+        category: 'input',
+        color: '#c2f0c2',
         defaults: {
             method: { value: 'get' },
             endpoint: { value: '' },
@@ -41,9 +41,9 @@
         },
         inputs: 0,
         outputs: 1,
-        icon: 'bridge.png',
+        icon: "font-awesome/fa-sign-in",
         label: function () {
-            return this.endpoint || 'express-request';
+            return this.name || `[${this.method}] ` + this.endpoint;
         },
         oneditprepare: function () {
             $("#node-input-schema").typedInput({
