@@ -38,7 +38,7 @@
         defaults: {
             method: { value: 'get' },
             endpoint: { value: '' },
-            schema: { value: '{"type":"object","properties":{"field_1":{"type":"string"},"field_2":{"type":"number"}},"required":["field_1","field_2"],"additionalProperties":false}' },
+            schema: { value: '{}' },
             validate: { value: false },
             server: { value: '', type: 'express-config' }
         },
@@ -71,7 +71,9 @@
                         const blob = new Blob([clientCode], { type: 'application/javascript' });
                         const link = document.createElement('a');
                         link.href = window.URL.createObjectURL(blob);
-                        link.download = 'event-api-client.js';
+                        const now = new Date();
+                        const timestamp = now.toISOString().replace(/[:.]/g, '-'); // Misal: 2025-08-05T10-43-21-123Z
+                        link.download = `api-client-code-${timestamp}.js`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -94,6 +96,7 @@
                     $('#schema-error').text('Invalid JSON schema: ' + e.message).show();
                 }
             });
+
 
             // // Pastikan schema valid saat node disimpan
             // this.on('node-save', function () {

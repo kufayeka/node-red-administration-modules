@@ -21,8 +21,10 @@ module.exports = function (RED) {
             method: config.method || 'get',
             endpoint: config.endpoint,
             schema: config.schema ? JSON.parse(config.schema) : null,
-            validate: config.validate
+            validate: config.validate,
+            paramsSchema: config.paramsSchema ? JSON.parse(config.paramsSchema) : null
         });
+
 
         // Validasi schema jika ada
         let validate;

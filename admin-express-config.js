@@ -60,32 +60,47 @@ module.exports = function (RED) {
 
     function generateClientCode(endpoints) {
         let code = `import { useApi } from './useApi';\n\nconst { get, post, put, del } = useApi();\n\n`;
-        code += `export const eventApi = {\n`;
+        code += `export const apiServices = {\n`;
 
         endpoints.forEach(endpoint => {
             const method = endpoint.method.toLowerCase();
             const funcName = endpointToFuncName(endpoint.endpoint, method);
-            let params = '';
-            let schemaComment = '';
 
-            // Generate parameter berdasarkan schema jika ada
-            if (endpoint.schema && endpoint.schema.properties) {
-                const requiredProps = endpoint.schema.required || [];
-                const props = Object.keys(endpoint.schema.properties).map(prop => {
-                    const isRequired = requiredProps.includes(prop);
-                    // TYPESCRIPT: return `${prop}${isRequired ? '' : '?'}: ${getType(endpoint.schema.properties[prop])}`;
-                    return `${prop}${isRequired ? '' : '?'}`;
-                });
-                params = props.join(', ');
-                if (requiredProps.length > 0) {
-                    schemaComment = `  /**\n   * Request body schema:\n   * ${JSON.stringify(endpoint.schema, null, 2).replace(/\n/g, '\n   * ')}\n   * Example: ${schemaToExample(endpoint.schema)}\n   */\n`;
-                }
-            } else if (method !== 'get') {
-                params = 'body'; // Fallback ke 'body' jika tidak ada schema
+            let paramNames = [];
+            let dynamicPath = endpoint.endpoint;
+            const paramRegex = /:([a-zA-Z0-9_]+)/g;
+            let match;
+
+            // Deteksi param dari path
+            while ((match = paramRegex.exec(endpoint.endpoint)) !== null) {
+                paramNames.push(match[1]);
+                dynamicPath = dynamicPath.replace(match[0], `\$\{${match[1]}\}`);
             }
 
-            code += schemaComment;
-            code += `  ${funcName}: ({${params}}) => ${method}('${endpoint.endpoint}'${params ? `, { ${params} }` : ''}),\n`;
+            const url = `\`${dynamicPath}\``;
+
+            // Body schema
+            let bodyKeys = [];
+            if (endpoint.schema && endpoint.schema.properties) {
+                const requiredProps = endpoint.schema.required || [];
+                bodyKeys = Object.keys(endpoint.schema.properties).map(k => {
+                    return `${k}${requiredProps.includes(k) ? '' : '?'}`;
+                });
+            }
+
+            const bodyParam = bodyKeys.length ? `body: { ${bodyKeys.join(', ')} }` : '';
+            const paramsParam = paramNames.length ? `params: { ${paramNames.join(', ')} }` : '';
+
+            let functionArgs = '';
+            if (bodyParam && paramsParam) {
+                functionArgs = `{ ${bodyParam}, ${paramsParam} }`;
+            } else if (bodyParam) {
+                functionArgs = `{ ${bodyParam} }`;
+            } else if (paramsParam) {
+                functionArgs = `{ ${paramsParam} }`;
+            }
+
+            code += `  ${funcName}: (${functionArgs}) => ${method}(${url}${bodyParam ? `, { body }` : ''}),\n`;
         });
 
         code += `};\n`;
