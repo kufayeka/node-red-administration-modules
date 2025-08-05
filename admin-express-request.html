@@ -26,6 +26,9 @@
         <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
         <input type="text" id="node-input-server">
     </div>
+    <div class="form-row">
+        <button id="generate-client-code">Generate Client Code</button>
+    </div>
 </script>
 
 <script type="text/javascript">
@@ -50,6 +53,17 @@
                 type:"json",
                 types:["json"]
             })
+
+            $('#generate-client-code').click(function () {
+                const url = `/express-config/${this.server}/generate-client`;
+                $.getJSON(url, function (response) {
+                    RED.notify('Client code generated.', 'success', url);
+                    console.log(response);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    RED.notify(`Failed to generate client code: ${textStatus} - ${errorThrown}`, 'error', url);
+                });
+            });
+
 
             // Validasi JSON schema saat input berubah
             $('#node-input-schema').on('input', function () {

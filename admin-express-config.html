@@ -12,9 +12,6 @@
         <label for="node-config-input-whitelist"><i class="fa fa-shield"></i> CORS Whitelist</label>
         <input type="text" id="node-config-input-whitelist" placeholder="Comma-separated origins">
     </div>
-    <div class="form-row">
-        <button id="generate-client-code">Generate Client Code</button>
-    </div>
 </script>
 
 <script type="text/javascript">
@@ -33,18 +30,7 @@
             return this.name || `Express Config @${this.port}`;
         },
         oneditprepare: function () {
-            $('#generate-client-code').click(function () {
-                $.ajax({
-                    url: `express-config/${this.id}/generate-client`,
-                    method: 'GET',
-                    success: function (response) {
-                        RED.notify('Client code generated. Check console or download.', 'success');
-                    },
-                    error: function (err) {
-                        RED.notify('Failed to generate client code: ' + err.responseText, 'error');
-                    }
-                });
-            });
+
         }
     });
 </script>
