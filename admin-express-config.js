@@ -8,7 +8,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         const node = this;
 
-        // Setup Express
+        // Setup Express (hanya untuk internal node, bukan untuk admin endpoint)
         const app = express();
         app.use(express.json());
         app.use(cookieParser());
@@ -38,13 +38,15 @@ module.exports = function (RED) {
             node.endpoints.push(endpointConfig);
         };
 
-        // Endpoint untuk generate client code
-        app.get('/express-config/:id/generate-client', (req, res) => {
-            if (req.params.id !== node.id) {
-                return res.status(404).send('Node not found');
+        // Endpoint untuk generate client code menggunakan RED.httpAdmin
+        RED.httpAdmin.get('/express-config/generate-client/:id', (req, res) => {
+            const nodeId = req.params.id;
+            const configNode = RED.nodes.getNode(nodeId);
+            if (!configNode || !(configNode instanceof ExpressConfigNode)) {
+                return res.status(404).json({ error: 'Node not found or not an Express config node' });
             }
-            const clientCode = generateClientCode(node.endpoints);
-            res.send({ code: clientCode });
+            const clientCode = generateClientCode(configNode.endpoints);
+            res.json({ code: clientCode });
         });
 
         node.on('close', function () {
