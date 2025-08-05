@@ -51,12 +51,14 @@ module.exports = function (RED) {
                 if (!valid) {
                     const error = ajv.errorsText(validate.errors);
                     msg.error = `Validation error: ${error}`;
+                    msg.responseSent = true; // Tandai bahwa respons sudah dikirim
                     res.status(400).send({ error: msg.error });
                     node.send(msg);
                     return;
                 }
             }
 
+            // Hanya kirim msg jika tidak ada error validasi
             node.send(msg);
         });
 

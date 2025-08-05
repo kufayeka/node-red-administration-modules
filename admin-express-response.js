@@ -10,7 +10,12 @@ module.exports = function (RED) {
                 return;
             }
 
-            msg.res.status(msg.statusCode || 200).send(msg.payload);
+            // Hanya kirim respons jika belum dikirim sebelumnya
+            if (!msg.responseSent) {
+                msg.res.status(msg.statusCode || 200).send(msg.payload);
+            } else {
+                node.warn('Response already sent by previous node, skipping send.');
+            }
         });
     }
 
