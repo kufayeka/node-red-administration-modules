@@ -54,13 +54,32 @@
                 types:["json"]
             })
 
+            const node = this; // Ambil konteks node saat ini
             $('#generate-client-code').click(function () {
-                const url = `/express-config/generate-client/${this.server}`;
-                $.getJSON(url, function (response) {
-                    RED.notify('Client code generated.', 'success', url);
-                    console.log(response);
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    RED.notify(`Failed to generate client code: ${textStatus} - ${errorThrown}`, 'error', url);
+                const server = $("#node-input-server").val() || node.id; // Fallback ke node.id jika server tidak ada
+
+                RED.notify(`Generating client code for: ${server}`, 'info');
+
+                const url = `/express-config/generate-client?expressClientId=${server}`;
+                $('#generate-client-code').click(function () {
+                    const server = $("#node-input-server").val() || node.id; // Fallback ke node.id
+
+                    RED.notify(`Generating client code for: ${server}`, 'info');
+
+                    const url = `/express-config/generate-client?expressClientId=${server}`;
+                    $.get(url, function (clientCode) {
+                        const blob = new Blob([clientCode], { type: 'application/javascript' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = 'event-api-client.js';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(link.href);
+                        RED.notify('Client code downloaded as event-api-client.js', 'success');
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        RED.notify(`Failed to generate client code: ${textStatus} - ${errorThrown}`, 'error');
+                    });
                 });
             });
 

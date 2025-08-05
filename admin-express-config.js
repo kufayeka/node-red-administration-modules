@@ -8,7 +8,6 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         const node = this;
 
-        // Setup Express (hanya untuk internal node, bukan untuk admin endpoint)
         const app = express();
         app.use(express.json());
         app.use(cookieParser());
@@ -31,24 +30,27 @@ module.exports = function (RED) {
         node.server = app.listen(port);
         node.app = app;
 
-        // Registry untuk menyimpan konfigurasi endpoint
         node.endpoints = [];
 
         node.registerEndpoint = function (endpointConfig) {
             node.endpoints.push(endpointConfig);
         };
 
-        // Endpoint untuk generate client code menggunakan RED.httpAdmin
-        RED.httpAdmin.get('/express-config/generate-client/:id', (req, res) => {
-            const nodeId = req.params.id;
-            RED.notify('Client code generated', nodeId);
+        RED.httpAdmin.get('/express-config/generate-client', (req, res) => {
+            const expressClientId = req.query.expressClientId;
+            if (!expressClientId) return res.status(400).json({ error: 'No expressClientId' });
 
-            const configNode = RED.nodes.getNode(nodeId);
+            console.log(`[${expressClientId}] Client code generated`);
+
+            const configNode = RED.nodes.getNode(expressClientId);
             if (!configNode || !(configNode instanceof ExpressConfigNode)) {
                 return res.status(404).json({ error: 'Node not found or not an Express config node' });
             }
             const clientCode = generateClientCode(configNode.endpoints);
-            res.json({ code: clientCode });
+
+            res.setHeader('Content-Disposition', 'attachment; filename="event-api-client.js"');
+            res.setHeader('Content-Type', 'application/javascript');
+            res.send(clientCode);
         });
 
         node.on('close', function () {
@@ -56,7 +58,6 @@ module.exports = function (RED) {
         });
     }
 
-    // Fungsi untuk generate client code
     function generateClientCode(endpoints) {
         let code = `import { useApi } from './useApi';\n\nconst { get, post, put, del } = useApi();\n\n`;
         code += `export const eventApi = {\n`;
@@ -64,29 +65,39 @@ module.exports = function (RED) {
         endpoints.forEach(endpoint => {
             const method = endpoint.method.toLowerCase();
             const funcName = endpointToFuncName(endpoint.endpoint, method);
-            const params = method === 'get' ? '' : 'body';
+            let params = '';
             let schemaComment = '';
 
-            if (endpoint.schema) {
-                schemaComment = `  /**\n   * Request body schema:\n   * ${JSON.stringify(endpoint.schema, null, 2).replace(/\n/g, '\n   * ')}\n   * Example: ${schemaToExample(endpoint.schema)}\n   */\n`;
+            // Generate parameter berdasarkan schema jika ada
+            if (endpoint.schema && endpoint.schema.properties) {
+                const requiredProps = endpoint.schema.required || [];
+                const props = Object.keys(endpoint.schema.properties).map(prop => {
+                    const isRequired = requiredProps.includes(prop);
+                    // TYPESCRIPT: return `${prop}${isRequired ? '' : '?'}: ${getType(endpoint.schema.properties[prop])}`;
+                    return `${prop}${isRequired ? '' : '?'}`;
+                });
+                params = props.join(', ');
+                if (requiredProps.length > 0) {
+                    schemaComment = `  /**\n   * Request body schema:\n   * ${JSON.stringify(endpoint.schema, null, 2).replace(/\n/g, '\n   * ')}\n   * Example: ${schemaToExample(endpoint.schema)}\n   */\n`;
+                }
+            } else if (method !== 'get') {
+                params = 'body'; // Fallback ke 'body' jika tidak ada schema
             }
 
             code += schemaComment;
-            code += `  ${funcName}: (${params}) => ${method}('${endpoint.endpoint}'${params ? ', body' : ''}),\n`;
+            code += `  ${funcName}: ({${params}}) => ${method}('${endpoint.endpoint}'${params ? `, { ${params} }` : ''}),\n`;
         });
 
         code += `};\n`;
         return code;
     }
 
-    // Konversi endpoint ke nama fungsi
     function endpointToFuncName(endpoint, method) {
         const parts = endpoint.split('/').filter(p => p && !p.startsWith(':'));
         const name = parts.map(p => p.replace(/-./g, x => x[1].toUpperCase())).join('');
         return `${method}${name.charAt(0).toUpperCase() + name.slice(1)}`;
     }
 
-    // Buat contoh request body dari schema
     function schemaToExample(schema) {
         if (!schema || !schema.properties) return '{}';
         const example = {};
@@ -98,6 +109,18 @@ module.exports = function (RED) {
             else if (prop.type === 'array') example[key] = [];
         }
         return JSON.stringify(example);
+    }
+
+    // Fungsi untuk menentukan tipe berdasarkan schema
+    function getType(prop) {
+        switch (prop.type) {
+            case 'string': return 'string';
+            case 'number': return 'number';
+            case 'boolean': return 'boolean';
+            case 'object': return 'object';
+            case 'array': return prop.items ? getType(prop.items) + '[]' : 'any[]';
+            default: return 'any';
+        }
     }
 
     RED.nodes.registerType('express-config', ExpressConfigNode);
