@@ -1,28 +1,45 @@
+<!-- admin-express-config.html -->
 <script type="text/html" data-template-name="express-config">
     <div class="form-row">
-        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-config-input-name">
+        <label for="node-input-port"><i class="fa fa-server"></i> Port</label>
+        <input type="number" id="node-input-port" placeholder="7000">
     </div>
     <div class="form-row">
-        <label for="node-config-input-port"><i class="fa fa-plug"></i> Port</label>
-        <input type="number" id="node-config-input-port" placeholder="7000">
+        <label for="node-input-whitelist"><i class="fa fa-globe"></i> CORS Whitelist</label>
+        <input type="text" id="node-input-whitelist" placeholder="http://localhost:3000,http://example.com">
     </div>
     <div class="form-row">
-        <label for="node-config-input-whitelist"><i class="fa fa-shield"></i> CORS Whitelist</label>
-        <input type="text" id="node-config-input-whitelist" placeholder="Comma-separated origins">
+        <button id="generate-client-code">GENERATE CLIENT CODE</button>
     </div>
 </script>
 
 <script type="text/javascript">
     RED.nodes.registerType('express-config', {
-        category: 'config',
+        category: 'web',
+        color: '#a6bbc6',
         defaults: {
-            name: { value: "" },
             port: { value: 7000 },
-            whitelist: { value: "http://localhost:1880" }
+            whitelist: { value: '' }
         },
+        inputs: 0,
+        outputs: 0,
+        icon: 'server.png',
         label: function () {
-            return this.name || `Express Config @${this.port}`;
+            return `Express Server:${this.port}`;
+        },
+        oneditprepare: function () {
+            $('#generate-client-code').click(function () {
+                $.ajax({
+                    url: `express-config/${this.id}/generate-client`,
+                    method: 'GET',
+                    success: function (response) {
+                        RED.notify('Client code generated. Check console or download.', 'success');
+                    },
+                    error: function (err) {
+                        RED.notify('Failed to generate client code: ' + err.responseText, 'error');
+                    }
+                });
+            });
         }
     });
 </script>

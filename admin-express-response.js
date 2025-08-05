@@ -1,3 +1,4 @@
+// admin-express-response.js
 module.exports = function (RED) {
     function ExpressResponseNode(config) {
         RED.nodes.createNode(this, config);
@@ -5,7 +6,7 @@ module.exports = function (RED) {
 
         node.on('input', function (msg) {
             if (!msg.res) {
-                node.error("Missing msg.res");
+                node.error('Missing msg.res');
                 return;
             }
 
@@ -13,5 +14,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType("express-response", ExpressResponseNode);
+    RED.nodes.registerType('express-response', ExpressResponseNode);
 };

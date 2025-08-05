@@ -1,18 +1,7 @@
+<!-- admin-express-request.html -->
 <script type="text/html" data-template-name="express-request">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-cog"></i> Express Config</label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-endpoint"><i class="fa fa-link"></i> Endpoint</label>
-        <input type="text" id="node-input-endpoint" placeholder="/api/route">
-    </div>
-    <div class="form-row">
-        <label for="node-input-method"><i class="fa fa-bolt"></i> Method</label>
+        <label for="node-input-method"><i class="fa fa-tasks"></i> Method</label>
         <select id="node-input-method">
             <option value="get">GET</option>
             <option value="post">POST</option>
@@ -20,23 +9,70 @@
             <option value="delete">DELETE</option>
         </select>
     </div>
+    <div class="form-row">
+        <label for="node-input-endpoint"><i class="fa fa-globe"></i> Endpoint</label>
+        <input type="text" id="node-input-endpoint" placeholder="/api/example">
+    </div>
+    <div class="form-row">
+        <label for="node-input-schema"><i class="fa fa-code"></i> Request Body Schema (JSON)</label>
+        <textarea id="node-input-schema" rows="5" placeholder='{"type": "object", "properties": {"event_id": {"type": "number", "minimum": 1}}, "required": ["event_id"]}'></textarea>
+        <div id="schema-error" class="red-ui-typedInput-error" style="display: none; color: #d43535;">Invalid JSON schema</div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-validate"><i class="fa fa-check"></i> Validate Request Body</label>
+        <input type="checkbox" id="node-input-validate" checked>
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
 </script>
 
 <script type="text/javascript">
     RED.nodes.registerType('express-request', {
-        category: 'input',
-        color: '#c2f0c2',
+        category: 'web',
+        color: '#a6bbc6',
         defaults: {
-            name: { value: "" },
-            server: { type: "express-config", required: true },
-            endpoint: { value: "/api/route", required: true },
-            method: { value: "post", required: true }
+            method: { value: 'get' },
+            endpoint: { value: '' },
+            schema: { value: '' },
+            validate: { value: true },
+            server: { value: '', type: 'express-config' }
         },
         inputs: 0,
         outputs: 1,
-        icon: "font-awesome/fa-sign-in",
+        icon: 'bridge.png',
         label: function () {
-            return this.name || `[${this.method}] ` + this.endpoint;
+            return this.endpoint || 'express-request';
+        },
+        oneditprepare: function () {
+            $("#node-input-schema").typedInput({
+                type:"json",
+                types:["json"]
+            })
+
+            // Validasi JSON schema saat input berubah
+            $('#node-input-schema').on('input', function () {
+                const schema = $(this).val();
+                try {
+                    JSON.parse(schema);
+                    $('#schema-error').hide();
+                } catch (e) {
+                    $('#schema-error').text('Invalid JSON schema: ' + e.message).show();
+                }
+            });
+
+            // // Pastikan schema valid saat node disimpan
+            // this.on('node-save', function () {
+            //     const schema = $('#node-input-schema').val();
+            //     try {
+            //         JSON.parse(schema);
+            //         return true;
+            //     } catch (e) {
+            //         RED.notify('Invalid JSON schema: ' + e.message, 'error');
+            //         return false;
+            //     }
+            // });
         }
     });
 </script>
