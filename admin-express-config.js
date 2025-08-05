@@ -41,6 +41,8 @@ module.exports = function (RED) {
         // Endpoint untuk generate client code menggunakan RED.httpAdmin
         RED.httpAdmin.get('/express-config/generate-client/:id', (req, res) => {
             const nodeId = req.params.id;
+            RED.notify('Client code generated', nodeId);
+
             const configNode = RED.nodes.getNode(nodeId);
             if (!configNode || !(configNode instanceof ExpressConfigNode)) {
                 return res.status(404).json({ error: 'Node not found or not an Express config node' });
