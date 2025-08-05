@@ -31,7 +31,7 @@
         icon: 'server.png',
         label: function () {
             return this.name || `Express Config @${this.port}`;
-        }
+        },
         oneditprepare: function () {
             $('#generate-client-code').click(function () {
                 $.ajax({
