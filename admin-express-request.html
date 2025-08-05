@@ -55,7 +55,7 @@
             })
 
             $('#generate-client-code').click(function () {
-                const url = `/express-config/${this.server}/generate-client`;
+                const url = `/express-config/generate-client/${this.server}`;
                 $.getJSON(url, function (response) {
                     RED.notify('Client code generated.', 'success', url);
                     console.log(response);
