@@ -59,19 +59,18 @@ module.exports = function (RED) {
     }
 
     function generateClientCode(endpoints) {
-        let code = `import { useApi } from './useApi';\n\nconst { get, post, put, del } = useApi();\n\n`;
+        let code = `import { useApi } from './useApi';\n\nconst { get, post, put, del, patch } = useApi();\n\n`;
         code += `export const apiServices = {\n`;
 
         endpoints.forEach(endpoint => {
             const method = endpoint.method.toLowerCase();
             const funcName = endpointToFuncName(endpoint.endpoint, method);
 
+            // Get path parameters
             let paramNames = [];
             let dynamicPath = endpoint.endpoint;
             const paramRegex = /:([a-zA-Z0-9_]+)/g;
             let match;
-
-            // Deteksi param dari path
             while ((match = paramRegex.exec(endpoint.endpoint)) !== null) {
                 paramNames.push(match[1]);
                 dynamicPath = dynamicPath.replace(match[0], `\$\{${match[1]}\}`);
@@ -79,28 +78,42 @@ module.exports = function (RED) {
 
             const url = `\`${dynamicPath}\``;
 
-            // Body schema
+            // Get body keys (optional, just for destructuring)
             let bodyKeys = [];
-            if (endpoint.schema && endpoint.schema.properties) {
+            if (endpoint.schema?.properties) {
                 const requiredProps = endpoint.schema.required || [];
                 bodyKeys = Object.keys(endpoint.schema.properties).map(k => {
                     return `${k}${requiredProps.includes(k) ? '' : '?'}`;
                 });
             }
 
-            const bodyParam = bodyKeys.length ? `body: { ${bodyKeys.join(', ')} }` : '';
-            const paramsParam = paramNames.length ? `params: { ${paramNames.join(', ')} }` : '';
+            const hasParams = paramNames.length > 0;
+            const hasBody = bodyKeys.length > 0;
 
-            let functionArgs = '';
-            if (bodyParam && paramsParam) {
-                functionArgs = `{ ${bodyParam}, ${paramsParam} }`;
-            } else if (bodyParam) {
-                functionArgs = `{ ${bodyParam} }`;
-            } else if (paramsParam) {
-                functionArgs = `{ ${paramsParam} }`;
+            const paramsStr = hasParams ? `params: { ${paramNames.join(', ')} }` : '';
+            const bodyStr = hasBody ? `body: { ${bodyKeys.join(', ')} }` : '';
+
+            const optionsStr = '...options';
+
+            const args = [bodyStr, paramsStr, optionsStr].filter(Boolean).join(', ');
+
+            // Determine method call
+            let methodCall = '';
+            if (['post', 'put', 'patch'].includes(method)) {
+                if (hasBody && hasParams) {
+                    methodCall = `${method}(${url}, { ${bodyKeys.join(', ')} }, options)`;
+                } else if (hasBody) {
+                    methodCall = `${method}(${url}, { ${bodyKeys.join(', ')} }, options)`;
+                } else if (hasParams) {
+                    methodCall = `${method}(${url}, {}, options)`;
+                } else {
+                    methodCall = `${method}(${url}, {}, options)`;
+                }
+            } else {
+                methodCall = `${method}(${url}, options)`;
             }
 
-            code += `  ${funcName}: (${functionArgs}) => ${method}(${url}${bodyParam ? `, { body }` : ''}),\n`;
+            code += `  ${funcName}: ({ ${args} }) => ${methodCall},\n`;
         });
 
         code += `};\n`;
